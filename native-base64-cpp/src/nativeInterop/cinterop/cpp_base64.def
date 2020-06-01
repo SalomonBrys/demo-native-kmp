@@ -1,0 +1,7 @@
+headers = base64_c.h
+headerFilter = base64_c.h
+
+noStringConversion = base64_encode
+
+linkerOpts = -lcpp_base64
+linkerOpts.linux = -lc -lc++ -L/usr/lib/x86_64-linux-gnu
