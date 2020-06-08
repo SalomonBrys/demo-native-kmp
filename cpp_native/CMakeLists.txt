@@ -20,7 +20,7 @@ if (WASM)
     set_target_properties(
             cpp_base64_js
             PROPERTIES LINK_FLAGS
-            "-s WASM=1 -s MODULARIZE=1 -s DISABLE_EXCEPTION_CATCHING=0 -s EXPORT_NAME=cpp_base64_js -s EXPORTED_FUNCTIONS=[_base64_encode,_base64_decode,_base64_max_len] -s EXTRA_EXPORTED_RUNTIME_METHODS=[UTF8ToString]"
+            "-s WASM=1 -s MODULARIZE=1 -s DISABLE_EXCEPTION_CATCHING=0 -s EXPORT_NAME=cpp_base64_js -s EXPORTED_FUNCTIONS=[_base64_encode,_base64_decode,_base64_max_encoded_len,_base64_max_decoded_len] -s EXTRA_EXPORTED_RUNTIME_METHODS=[UTF8ToString]"
     )
     target_compile_options(cpp_base64_js PUBLIC -fexceptions -s DISABLE_EXCEPTION_CATCHING=0)
 

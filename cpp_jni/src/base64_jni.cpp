@@ -9,7 +9,7 @@
 
 extern "C" JNIEXPORT jstring JNICALL Java_org_example_nativeb64_cpp_NativeBase64Jvm_encode(JNIEnv *env, jobject, jbyteArray jBytes, jboolean url) {
     auto length = env->GetArrayLength(jBytes);
-    int resultMaxLen = base64_max_len(length);
+    int resultMaxLen = base64_max_encoded_len(length);
     auto resultChars = (char*) malloc(resultMaxLen * sizeof(char) + 1);
 
     auto bytes = (jbyte*) env->GetPrimitiveArrayCritical(jBytes, nullptr);
@@ -33,13 +33,14 @@ extern "C" JNIEXPORT jstring JNICALL Java_org_example_nativeb64_cpp_NativeBase64
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL Java_org_example_nativeb64_cpp_NativeBase64Jvm_decode(JNIEnv *env, jobject, jstring jB64) {
-    auto length = env->GetStringLength(jB64);
-    auto resultBuffer = (char*) malloc(length * sizeof(char));
+    auto b64Length = env->GetStringLength(jB64);
+    int resultMaxLen = base64_max_decoded_len(b64Length);
+    auto resultBuffer = (char*) malloc(resultMaxLen * sizeof(char));
 
     auto b64 = env->GetStringUTFChars(jB64, nullptr);
 
     int resultLen;
-    char* error = base64_decode(b64, resultBuffer, length, &resultLen);
+    char* error = base64_decode(b64, resultBuffer, resultMaxLen, &resultLen);
 
     env->ReleaseStringUTFChars(jB64, b64);
 

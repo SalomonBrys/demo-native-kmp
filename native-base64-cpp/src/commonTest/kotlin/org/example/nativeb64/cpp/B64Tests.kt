@@ -28,6 +28,6 @@ class B64Tests {
 
     @Test fun invalidCharacter() = initAndRun {
         val ex = assertFailsWith<NativeBase64.Error> { b64.decode("AB*CD") }
-        assertEquals("Input is incorrect: found non-base64 caracter '*'.", ex.message)
+        assertEquals("Input is incorrect: found non-base64 caracter 0x2a '*'.", ex.message)
     }
 }

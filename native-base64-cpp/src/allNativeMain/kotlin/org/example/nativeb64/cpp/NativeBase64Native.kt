@@ -2,9 +2,7 @@ package org.example.nativeb64.cpp
 
 import kotlinx.cinterop.*
 import org.example.nativeb64.NativeBase64
-import org.example.nativeb64.cpp.cinterop.base64_decode
-import org.example.nativeb64.cpp.cinterop.base64_encode
-import org.example.nativeb64.cpp.cinterop.base64_max_len
+import org.example.nativeb64.cpp.cinterop.*
 
 
 class NativeBase64Native : NativeBase64 {
@@ -19,7 +17,7 @@ class NativeBase64Native : NativeBase64 {
 
     override fun encode(bytes: ByteArray, url: Boolean): String {
         memScoped {
-            val resultMaxLen = base64_max_len(bytes.size)
+            val resultMaxLen = base64_max_encoded_len(bytes.size)
             val resultChars = allocArray<ByteVar>(resultMaxLen + 1)
             val resultLen = alloc<IntVar>()
 
@@ -32,7 +30,7 @@ class NativeBase64Native : NativeBase64 {
 
     override fun decode(b64: String): ByteArray {
         memScoped {
-            val resultMaxLen = b64.length
+            val resultMaxLen = base64_max_decoded_len(b64.length)
             val resultBuffer = allocArray<ByteVar>(resultMaxLen)
             val resultLen = alloc<IntVar>()
 

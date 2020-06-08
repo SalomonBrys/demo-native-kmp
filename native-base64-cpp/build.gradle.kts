@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.targets.js.npm.npmProject
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     `maybe-android-library`
     `has-platform`
     `root-properties`
+    `maven-publish`
 
     kotlin("multiplatform") version "1.3.72"
 }
@@ -73,7 +75,7 @@ kotlin {
         }
     }
 
-    fun org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget.addDetectCInterop() {
+    fun KotlinNativeTarget.addDetectCInterop() {
         compilations["main"].cinterops.create("cpp_base64") {
             packageName("org.example.nativeb64.cpp.cinterop")
             includeDirs {
@@ -91,7 +93,7 @@ kotlin {
         sourceSets.create("allNativeMain") { dependsOn(sourceSets["commonMain"]) }
         sourceSets.create("allNativeTest") { dependsOn(sourceSets["commonTest"]) }
     }
-    fun org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget.configureSourceSet() {
+    fun KotlinNativeTarget.configureSourceSet() {
         val mainSourceSet = compilations["main"].defaultSourceSet
         val testSourceSet = compilations["test"].defaultSourceSet
         when (nativeClasspathFix) {
@@ -151,6 +153,35 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest> {
         copy {
             from(rootDir.resolve("cpp_native/build/cmake/out/base64Wasm/js/cpp_base64_js.wasm"))
             into(compilation.npmProject.dir)
+        }
+    }
+}
+
+afterEvaluate {
+    val targets = when {
+        currentOs.isLinux -> listOf("mingwX64", "macosX64")
+        currentOs.isMacOsX -> listOf("mingwX64", "linuxX64")
+        currentOs.isWindows -> listOf("linuxX64", "macosX64")
+        else -> error("Unsupported os $currentOs")
+    }.mapNotNull { kotlin.targets.findByName(it) as? KotlinNativeTarget }
+
+    configure(targets) {
+        compilations.all {
+            cinterops.all { tasks[interopProcessingTaskName].enabled = false }
+            compileKotlinTask.enabled = false
+            tasks[processResourcesTaskName].enabled = false
+        }
+        binaries.all { linkTask.enabled = false }
+
+        mavenPublication {
+            val publicationToDisable = this
+            tasks.withType<AbstractPublishToMaven>().all {
+                onlyIf { publication != publicationToDisable }
+            }
+            tasks.withType<GenerateModuleMetadata>().all {
+                onlyIf { publication.get() != publicationToDisable }
+            }
+
         }
     }
 }

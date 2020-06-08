@@ -62,7 +62,7 @@ namespace base64 {
         else if (chr == '/' || chr == '_') return 63; // Ditto for '/' and '_'
 
         std::stringstream ss;
-        ss << "Input is incorrect: found non-base64 caracter '" << chr << "'.";
+        ss << "Input is incorrect: found non-base64 caracter 0x" << std::hex << (int) chr << " '" << chr << "'.";
         throw std::invalid_argument(ss.str());
     }
 
